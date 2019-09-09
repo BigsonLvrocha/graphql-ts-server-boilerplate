@@ -1,0 +1,22 @@
+{
+  "name": "treinamento",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "devDependencies": {
+    "@types/node": "^12.7.4",
+    "ts-node": "8.3.0",
+    "tslint": "^5.19.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "3.6.2",
+    "nodemon": "^1.19.2"
+  },
+  "dependencies": {
+    "graphql-yoga": "^1.18.3",
+    "pg": "^7.12.1",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "0.2.18"
+  },
+  "scripts": {
+    "start": "nodemon --exec ts-node src/index.ts"
+  }
+}
