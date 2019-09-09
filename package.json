@@ -4,19 +4,25 @@
   "description": "Awesome project developed with TypeORM.",
   "devDependencies": {
     "@types/node": "^12.7.4",
+    "@types/uuid": "^3.4.5",
+    "gql2ts": "^1.10.1",
+    "nodemon": "^1.19.2",
     "ts-node": "8.3.0",
     "tslint": "^5.19.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "3.6.2",
-    "nodemon": "^1.19.2"
+    "typescript": "3.6.2"
   },
   "dependencies": {
+    "graphql-import": "^0.7.1",
+    "graphql-tools": "^4.0.5",
     "graphql-yoga": "^1.18.3",
     "pg": "^7.12.1",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "0.2.18"
+    "typeorm": "0.2.18",
+    "uuid": "^3.3.3"
   },
   "scripts": {
-    "start": "nodemon --exec ts-node src/index.ts"
+    "start": "nodemon --exec ts-node src/index.ts",
+    "gen-schema-types": "gql2ts src/schema.graphql -o src/types/schema.d.ts"
   }
 }
