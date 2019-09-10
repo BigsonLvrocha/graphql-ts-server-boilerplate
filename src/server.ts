@@ -23,7 +23,9 @@ export const startServer = async () => {
     );
     schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
   });
-  const redis = new Redis();
+  const redis = new Redis({
+    host: "0.0.0.0"
+  });
   const server = new GraphQLServer({
     schema: mergeSchemas({
       schemas

@@ -1,8 +1,7 @@
 import { request } from "graphql-request";
 import { User } from "../src/entity/User";
-import { startServer } from "../src/server";
-import { AddressInfo } from "net";
 import { duplicateEmail } from "../src/modules/register/errorMessages";
+import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
 
 const email = "toma@bob.com";
 const password = "asdf";
@@ -22,13 +21,10 @@ const getCustomMutation = (customEmail: string, customPassword: string) => `
     }
   }
 `;
-let getHost = () => "";
 
 describe("Registration object", () => {
   beforeAll(async () => {
-    const app = await startServer();
-    const { port } = app.address() as AddressInfo;
-    getHost = () => `http://127.0.0.1:${port}`;
+    await createTypeOrmConn();
   });
 
   beforeEach(async () => {
@@ -38,7 +34,7 @@ describe("Registration object", () => {
   });
 
   it("should register user", async () => {
-    const response = await request(getHost(), mutation);
+    const response = await request(process.env.TEST_HOST as string, mutation);
     expect(response).toEqual({
       register: null
     });
@@ -49,8 +45,11 @@ describe("Registration object", () => {
   });
 
   it("should return error on duplicate emails", async () => {
-    await request(getHost(), mutation);
-    const response = (await request(getHost(), mutation)) as any;
+    await request(process.env.TEST_HOST as string, mutation);
+    const response = (await request(
+      process.env.TEST_HOST as string,
+      mutation
+    )) as any;
     expect(response.register).toHaveLength(1);
     expect(response.register[0].path).toEqual("email");
     expect(response.register[0].message).toEqual(duplicateEmail);
@@ -59,7 +58,7 @@ describe("Registration object", () => {
   it("should return error on invalid email", async () => {
     const customEmail = "aaasdfasd";
     const response = await request(
-      getHost(),
+      process.env.TEST_HOST as string,
       getCustomMutation(customEmail, password)
     );
     expect(response.register).toHaveLength(1);
@@ -69,7 +68,7 @@ describe("Registration object", () => {
   it("should return error on short email", async () => {
     const customEmail = "aa";
     const response = await request(
-      getHost(),
+      process.env.TEST_HOST as string,
       getCustomMutation(customEmail, password)
     );
     expect(response.register).toHaveLength(2);
@@ -78,7 +77,7 @@ describe("Registration object", () => {
   it("should return error on short password", async () => {
     const customPassword = "12";
     const response = await request(
-      getHost(),
+      process.env.TEST_HOST as string,
       getCustomMutation(email, customPassword)
     );
     expect(response.register).toHaveLength(1);
