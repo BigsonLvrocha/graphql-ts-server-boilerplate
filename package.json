@@ -25,26 +25,12 @@
     "graphql-yoga": "^1.18.3",
     "pg": "^7.12.1",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "0.2.18",
-    "uuid": "^3.3.3"
+    "typeorm": "0.2.18"
   },
   "scripts": {
     "start": "NODE_ENV=development nodemon --exec ts-node --files src/index.ts",
     "gen-schema-types": "gql2ts src/schema.graphql -o src/types/schema.d.ts",
     "test": "NODE_ENV=test jest"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  }
+  "jest": {}
 }
