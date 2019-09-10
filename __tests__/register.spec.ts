@@ -7,7 +7,10 @@ const email = "toma@bob.com";
 const password = "asdf";
 const mutation = `
   mutation {
-    register(email: "${email}", password: "${password}")
+    register(email: "${email}", password: "${password}") {
+      path
+      message
+    }
   }
 `;
 let getHost = () => "";
@@ -18,11 +21,26 @@ beforeAll(async () => {
   getHost = () => `http://127.0.0.1:${port}`;
 });
 
+beforeEach(async () => {
+  await User.createQueryBuilder()
+    .delete()
+    .execute();
+});
+
 test("Register user", async () => {
   const response = await request(getHost(), mutation);
-  expect(response).toEqual({ register: true });
+  expect(response).toEqual({
+    register: null
+  });
   const users = await User.find({ where: { email } });
   expect(users).toHaveLength(1);
   const user = users[0];
   expect(user.password).not.toEqual(password);
+});
+
+test("Register user error", async () => {
+  await request(getHost(), mutation);
+  const response = (await request(getHost(), mutation)) as any;
+  expect(response.register).toHaveLength(1);
+  expect(response.register[0].path).toEqual("email");
 });
