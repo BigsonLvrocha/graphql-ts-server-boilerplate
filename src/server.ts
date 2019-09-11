@@ -1,53 +1,19 @@
 import { GraphQLServer } from "graphql-yoga";
-import { importSchema } from "graphql-import";
-import { GraphQLSchema } from "graphql";
-import * as path from "path";
 import { createTypeOrmConn } from "./utils/createTypesOrmConn";
-import * as fs from "fs";
-import { mergeSchemas, makeExecutableSchema } from "graphql-tools";
-import * as Redis from "ioredis";
-import { User } from "./entity/User";
+import { redis } from "./services/redis";
+import { confirmEmail } from "./routes/confirmEmail";
+import { genSchema } from "./utils/generateSchema";
 
 export const startServer = async () => {
-  const schemas: GraphQLSchema[] = [];
-  const folders = fs.readdirSync(path.join(__dirname, "./modules"));
-  folders.forEach(folder => {
-    const { resolvers } = require(path.join(
-      __dirname,
-      "modules",
-      folder,
-      "resolvers"
-    ));
-    const typeDefs = importSchema(
-      path.join(__dirname, "modules", folder, "schema.graphql")
-    );
-    schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
-  });
-  const redis = new Redis({
-    host: "0.0.0.0"
-  });
+  const schema = genSchema();
   const server = new GraphQLServer({
-    schema: mergeSchemas({
-      schemas
-    }),
+    schema,
     context: ({ request }) => ({
       redis,
       url: request.protocol + "://" + request.get("host")
     })
   });
-
-  server.express.get("/confirm/:id", async (req, res) => {
-    const { id } = req.params;
-    const userId = await redis.get(id);
-    if (userId) {
-      await User.update(userId as string, { confirmed: true });
-      await redis.del(id);
-      res.send("ok");
-    } else {
-      res.send("error");
-    }
-  });
-
+  server.express.get("/confirm/:id", confirmEmail);
   await createTypeOrmConn();
   const app = await server.start({
     port: process.env.NODE_ENV === "test" ? 0 : 4000

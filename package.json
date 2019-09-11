@@ -16,12 +16,14 @@
     "nodemon": "^1.19.2",
     "ts-jest": "^24.0.2",
     "ts-node": "8.3.0",
-    "tslint": "^5.19.0",
+    "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "3.6.2"
   },
   "dependencies": {
+    "@gql2ts/from-schema": "^1.10.1",
     "bcryptjs": "^2.4.3",
+    "express": "^4.17.1",
     "graphql": "^14.5.4",
     "graphql-import": "^0.7.1",
     "graphql-tools": "^4.0.5",
@@ -36,7 +38,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=development nodemon --exec ts-node --files src/index.ts",
-    "gen-schema-types": "gql2ts src/schema.graphql -o src/types/schema.d.ts",
+    "gen-schema-types": "ts-node --files src/scripts/createTypes.ts",
     "test": "NODE_ENV=test TS_NODE_FILES=true jest --forceExit --detectOpenHandles"
   }
 }

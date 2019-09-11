@@ -1,23 +1,27 @@
 import { createConfirmEmailLink } from "../src/utils/createConfirmEmailLinks";
 import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
 import { User } from "../src/entity/User";
-import * as Redis from "ioredis";
+import { redis } from "../src/services/redis";
 import { default as fetch } from "node-fetch";
+import { Connection } from "typeorm";
 
 let userId = "";
-const redis = new Redis({
-  host: "0.0.0.0"
-});
+let conn: Connection;
 
 describe("create confirm link", () => {
   beforeAll(async () => {
-    await createTypeOrmConn();
+    conn = await createTypeOrmConn();
     const user = await User.create({
       email: "box5@bob.com",
       password: "açshfqnrçvh"
     }).save();
     userId = user.id;
   });
+
+  afterAll(async () => {
+    await conn.close();
+  });
+
   it("should create a valid link", async () => {
     const url = await createConfirmEmailLink(
       process.env.TEST_HOST as string,
@@ -37,11 +41,5 @@ describe("create confirm link", () => {
     const key = chunks[chunks.length - 1];
     const value = await redis.get(key);
     expect(value).toBeNull();
-  });
-
-  it("should reject bad id", async () => {
-    const response = await fetch(`${process.env.TEST_HOST}/confirm/1230875434`);
-    const text = await response.text();
-    expect(text).toEqual("error");
   });
 });
