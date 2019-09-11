@@ -33,7 +33,7 @@ describe("Registration object", () => {
       .execute();
   });
 
-  it("should register user", async () => {
+  it("registers correct user", async () => {
     const response = await request(process.env.TEST_HOST as string, mutation);
     expect(response).toEqual({
       register: null
@@ -44,7 +44,7 @@ describe("Registration object", () => {
     expect(user.password).not.toEqual(password);
   });
 
-  it("should return error on duplicate emails", async () => {
+  it("returns error on duplicate emails", async () => {
     await request(process.env.TEST_HOST as string, mutation);
     const response = (await request(
       process.env.TEST_HOST as string,
@@ -55,7 +55,7 @@ describe("Registration object", () => {
     expect(response.register[0].message).toEqual(duplicateEmail);
   });
 
-  it("should return error on invalid email", async () => {
+  it("returns error on invalid email", async () => {
     const customEmail = "aaasdfasd";
     const response = await request(
       process.env.TEST_HOST as string,
@@ -65,7 +65,7 @@ describe("Registration object", () => {
     expect(response.register[0].path).toEqual("email");
   });
 
-  it("should return error on short email", async () => {
+  it("returns error on short email", async () => {
     const customEmail = "aa";
     const response = await request(
       process.env.TEST_HOST as string,
@@ -74,7 +74,7 @@ describe("Registration object", () => {
     expect(response.register).toHaveLength(2);
   });
 
-  it("should return error on short password", async () => {
+  it("returns error on short password", async () => {
     const customPassword = "12";
     const response = await request(
       process.env.TEST_HOST as string,
