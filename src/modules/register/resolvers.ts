@@ -1,5 +1,4 @@
 import { IResolvers } from "graphql-tools";
-import * as bcrypt from "bcryptjs";
 import { User } from "../../entity/User";
 import * as yup from "yup";
 import { formatYupError } from "../../utils/formatYupError";
@@ -47,10 +46,9 @@ export const resolvers: IResolvers = {
           }
         ];
       }
-      const hashedPassword = await bcrypt.hash(password, 10);
       const user = User.create({
         email,
-        password: hashedPassword
+        password
       });
       await user.save();
       if (process.env.NODE_ENV !== "test") {

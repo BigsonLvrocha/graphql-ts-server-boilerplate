@@ -5,17 +5,31 @@ export interface Session {
   userId?: string;
 }
 
+export type Resolver = (
+  parent: any,
+  agrs: any,
+  context: {
+    redis: Redis;
+    url: string;
+    session: Session;
+  },
+  info: any
+) => any;
+
+export type GraphQLMiddlewareFunc = (
+  resolver: Resolver,
+  parent: any,
+  agrs: any,
+  context: {
+    redis: Redis;
+    url: string;
+    session: Session;
+  },
+  info: any
+) => any;
+
 export interface ResolverMap {
   [key: string]: {
-    [key: string]: (
-      parent: any,
-      agrs: any,
-      context: {
-        redis: Redis;
-        url: string;
-        session: Session;
-      },
-      info: any
-    ) => any;
+    [key: string]: Resolver;
   };
 }

@@ -5,7 +5,7 @@ import {
   invalidLogin,
   confirmEmailError
 } from "../src/modules/login/errorMessages";
-import * as bcrypt from "bcryptjs";
+import { Connection } from "typeorm";
 
 const email = "tom@bob.com";
 const password = "asdf";
@@ -17,16 +17,20 @@ const makeLoginMutation = (customEmail: string, customPassword: string) => `
     }
   }
 `;
-
+let conn: Connection;
 describe("login module", () => {
   beforeAll(async () => {
-    await createTypeOrmConn();
+    conn = await createTypeOrmConn();
   });
 
   beforeEach(async () => {
     await User.createQueryBuilder()
       .delete()
       .execute();
+  });
+
+  afterAll(async () => {
+    conn.close();
   });
 
   it("returns error on invalid email", async () => {
@@ -63,10 +67,9 @@ describe("login module", () => {
     });
   });
   it("returns error on wrong password", async () => {
-    const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
       email,
-      password: hashedPassword,
+      password,
       confirmed: true
     }).save();
     const response = await request(
@@ -83,10 +86,9 @@ describe("login module", () => {
     });
   });
   it("returns null on correct login", async () => {
-    const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
       email,
-      password: hashedPassword,
+      password,
       confirmed: true
     }).save();
     const response = await request(
