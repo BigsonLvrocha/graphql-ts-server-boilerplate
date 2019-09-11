@@ -1,5 +1,6 @@
 import { startServer } from "../src/server";
 import { AddressInfo } from "net";
+import "dotenv/config";
 
 export default async function setup() {
   const app = await startServer();
