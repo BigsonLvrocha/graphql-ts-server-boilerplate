@@ -22,7 +22,7 @@ describe("create confirm link", () => {
     await conn.close();
   });
 
-  it("should create a valid link", async () => {
+  it("creates a valid link", async () => {
     const url = await createConfirmEmailLink(
       process.env.TEST_HOST as string,
       userId,
