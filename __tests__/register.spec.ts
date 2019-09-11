@@ -2,6 +2,7 @@ import { request } from "graphql-request";
 import { User } from "../src/entity/User";
 import { duplicateEmail } from "../src/modules/register/errorMessages";
 import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { Connection } from "typeorm";
 
 const email = "toma@bob.com";
 const password = "asdf";
@@ -22,9 +23,14 @@ const getCustomMutation = (customEmail: string, customPassword: string) => `
   }
 `;
 
+let conn: Connection;
 describe("Registration object", () => {
   beforeAll(async () => {
-    await createTypeOrmConn();
+    conn = await createTypeOrmConn();
+  });
+
+  afterAll(async () => {
+    conn.close();
   });
 
   beforeEach(async () => {

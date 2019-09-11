@@ -11,11 +11,13 @@ export const startServer = async () => {
   const schema = genSchema();
   const server = new GraphQLServer({
     schema,
-    context: ({ request }) => ({
-      redis,
-      url: request.protocol + "://" + request.get("host"),
-      session: request.session
-    })
+    context: ({ request }) => {
+      return {
+        redis,
+        url: request.protocol + "://" + request.get("host"),
+        session: request.session
+      };
+    }
   });
   server.express.use(
     session({
@@ -35,7 +37,10 @@ export const startServer = async () => {
   );
   const cors = {
     credentials: true,
-    origin: "http://localhost:3000"
+    origin:
+      process.env.NODE_ENV !== "production"
+        ? "*"
+        : (process.env.FRONTEND_HOST as string)
   };
   server.express.get("/confirm/:id", confirmEmail);
   await createTypeOrmConn();
