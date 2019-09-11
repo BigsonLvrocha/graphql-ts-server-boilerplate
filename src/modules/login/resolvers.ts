@@ -1,16 +1,20 @@
-import { IResolvers } from "graphql-tools";
 import { User } from "../../entity/User";
 import { invalidLogin, confirmEmailError } from "./errorMessages";
 import * as bcrypt from "bcryptjs";
+import { ResolverMap } from "../../types/graphql-utils";
 
 const errorResponse = {
   path: "email",
   message: invalidLogin
 };
 
-export const resolvers: IResolvers = {
+export const resolvers: ResolverMap = {
   Mutation: {
-    login: async (_, { email, password }: GQL.ILoginOnMutationArguments) => {
+    login: async (
+      _,
+      { email, password }: GQL.ILoginOnMutationArguments,
+      { session }
+    ) => {
       const user = await User.findOne({ where: { email } });
       if (!user) {
         return [errorResponse];
@@ -27,6 +31,7 @@ export const resolvers: IResolvers = {
       if (!valid) {
         return [errorResponse];
       }
+      session.userId = user.id;
       return null;
     }
   },
