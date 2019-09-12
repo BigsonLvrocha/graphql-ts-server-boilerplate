@@ -24,7 +24,20 @@ describe("logout module", () => {
     conn.close();
   });
 
-  it("logs out current user", async () => {
+  test("multiple sesison", async () => {
+    const sess1 = new TestClient(process.env.TEST_HOST as string);
+    const sess2 = new TestClient(process.env.TEST_HOST as string);
+
+    await sess1.login(email, password);
+    await sess2.login(email, password);
+    expect(await sess1.me()).toEqual(await sess2.me());
+    await sess1.logout();
+    const me1 = await sess1.me();
+    const me2 = await sess2.me();
+    expect(me1).toEqual(me2);
+  });
+
+  it("logs out single session", async () => {
     const client = new TestClient(process.env.TEST_HOST as string);
     await client.login(email, password);
     const response = await client.me();
@@ -39,6 +52,6 @@ describe("logout module", () => {
   it("accepts empty cookie request", async () => {
     const client = new TestClient(process.env.TEST_HOST as string);
     const response1 = await client.logout();
-    expect(response1.data.logout).toBeTruthy();
+    expect(response1.data.logout).toBeFalsy();
   });
 });

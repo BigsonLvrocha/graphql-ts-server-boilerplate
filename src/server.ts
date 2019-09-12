@@ -8,6 +8,9 @@ import { createTypeOrmConn } from "./utils/createTypesOrmConn";
 import { redis } from "./services/redis";
 import { confirmEmail } from "./routes/confirmEmail";
 import { genSchema } from "./utils/generateSchema";
+import { redisSessionPrefix } from "./constants";
+
+const RedisStore = ConnectRedis(session);
 
 export const startServer = async () => {
   const schema = genSchema();
@@ -17,7 +20,8 @@ export const startServer = async () => {
       return {
         redis,
         url: request.protocol + "://" + request.get("host"),
-        session: request.session
+        session: request.session,
+        req: request
       };
     }
   });
@@ -27,8 +31,9 @@ export const startServer = async () => {
       secret: process.env.SESSION_SECRET as string,
       resave: false,
       saveUninitialized: false,
-      store: new (ConnectRedis(session))({
-        client: Redis.createClient()
+      store: new RedisStore({
+        client: Redis.createClient(),
+        prefix: redisSessionPrefix
       }),
       cookie: {
         httpOnly: true,

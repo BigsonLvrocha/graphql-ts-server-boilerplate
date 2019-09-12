@@ -1,20 +1,39 @@
 import { ResolverMap } from "../../types/graphql-utils";
+import { userSessionIdPrefix, redisSessionPrefix } from "../../constants";
 
 export const resolvers: ResolverMap = {
   Query: {
     dummy: () => "dummy"
   },
   Mutation: {
-    logout: (_, __, { session }) =>
-      new Promise((resolve, reject) =>
-        session.destroy(err => {
-          if (err) {
-            console.log("lougout error: ", err);
-            reject(err);
-            return;
-          }
-          resolve(true);
-        })
-      )
+    logout: async (_, __, { session, redis }) => {
+      const { userId } = session;
+      if (!userId) {
+        return false;
+      }
+      const sessionIds = (await redis.lrange(
+        `${userSessionIdPrefix}${userId}`,
+        0,
+        -1
+      )) as string[];
+
+      const promises = sessionIds.map(sessionId =>
+        redis.del(`${redisSessionPrefix}${sessionId}`)
+      );
+      promises.push(
+        new Promise((resolve, reject) =>
+          session.destroy(err => {
+            if (err) {
+              console.log(err);
+              reject(err);
+              return;
+            }
+            resolve();
+          })
+        )
+      );
+      await Promise.all(promises);
+      return true;
+    }
   }
 };
