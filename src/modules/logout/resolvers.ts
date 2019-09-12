@@ -16,11 +16,10 @@ export const resolvers: ResolverMap = {
         0,
         -1
       )) as string[];
-      const promises = [];
-      // tslint:disable-next-line: prefer-for-of
-      for (let i = 0; i < sessionIds.length; i += 1) {
-        promises.push(redis.del(`${redisSessionPrefix}${sessionIds[i]}`));
-      }
+
+      const promises = sessionIds.map(sessionId =>
+        redis.del(`${redisSessionPrefix}${sessionId}`)
+      );
       promises.push(
         new Promise((resolve, reject) =>
           session.destroy(err => {
