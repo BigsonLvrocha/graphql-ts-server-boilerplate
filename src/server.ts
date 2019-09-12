@@ -14,9 +14,13 @@ import * as RedisStoreLimit from "rate-limit-redis";
 import * as Passport from "passport";
 import { Strategy } from "passport-twitter";
 import { User } from "./entity/User";
+import { createTestConn } from "../__tests__/utils/createTestConnection";
 
 const RedisStore = ConnectRedis(session);
 export const startServer = async () => {
+  if (process.env.NODE_ENV === "test") {
+    redis.flushall();
+  }
   const schema = genSchema();
   const server = new GraphQLServer({
     schema,
@@ -63,7 +67,11 @@ export const startServer = async () => {
         : (process.env.FRONTEND_HOST as string)
   };
   server.express.get("/confirm/:id", confirmEmail);
-  await createTypeOrmConn();
+  if (process.env.NODE_ENV === "test") {
+    await createTestConn(true);
+  } else {
+    await createTypeOrmConn();
+  }
   Passport.use(
     new Strategy(
       {

@@ -1,25 +1,20 @@
 import { User } from "../src/entity/User";
 import { duplicateEmail } from "../src/modules/register/errorMessages";
-import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { createTestConn } from "./utils/createTestConnection";
 import { Connection } from "typeorm";
 import { TestClient } from "./utils/testClient";
+import * as faker from "faker";
 
-const email = "toma@bob.com";
-const password = "asdf";
+const email = faker.internet.email();
+const password = faker.internet.password();
 let conn: Connection;
 describe("Registration object", () => {
   beforeAll(async () => {
-    conn = await createTypeOrmConn();
+    conn = await createTestConn();
   });
 
   afterAll(async () => {
     conn.close();
-  });
-
-  beforeEach(async () => {
-    await User.createQueryBuilder()
-      .delete()
-      .execute();
   });
 
   it("registers correct user", async () => {

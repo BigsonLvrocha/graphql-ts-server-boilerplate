@@ -1,19 +1,17 @@
 import { Connection } from "typeorm";
-import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { createTestConn } from "./utils/createTestConnection";
 import { User } from "../src/entity/User";
 import { TestClient } from "./utils/testClient";
+import * as faker from "faker";
 
-const email = "tom@bob.com";
-const password = "asdf";
+const email = faker.internet.email();
+const password = faker.internet.password();
 let conn: Connection;
 let userId: string;
 
 describe("me module", () => {
   beforeAll(async () => {
-    conn = await createTypeOrmConn();
-    await User.createQueryBuilder()
-      .delete()
-      .execute();
+    conn = await createTestConn();
     const user = await User.create({
       email,
       password,
