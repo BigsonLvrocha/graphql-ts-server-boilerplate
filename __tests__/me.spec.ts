@@ -70,4 +70,11 @@ describe("me module", () => {
       }
     });
   });
+
+  it("returns null if no cookie", async () => {
+    const response = await axiosClient.post(process.env.TEST_HOST as string, {
+      query: meQuery
+    });
+    expect(response.data.data.me).toBeNull();
+  });
 });
