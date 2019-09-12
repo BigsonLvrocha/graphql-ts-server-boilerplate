@@ -1,4 +1,3 @@
-import { request } from "graphql-request";
 import { User } from "../src/entity/User";
 import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
 import {
@@ -6,17 +5,10 @@ import {
   confirmEmailError
 } from "../src/modules/login/errorMessages";
 import { Connection } from "typeorm";
+import { TestClient } from "./utils/testClient";
 
 const email = "tom@bob.com";
 const password = "asdf";
-const makeLoginMutation = (customEmail: string, customPassword: string) => `
-  mutation {
-    login(email: "${customEmail}", password: "${customPassword}") {
-      path
-      message
-    }
-  }
-`;
 let conn: Connection;
 describe("login module", () => {
   beforeAll(async () => {
@@ -34,11 +26,9 @@ describe("login module", () => {
   });
 
   it("returns error on invalid email", async () => {
-    const response = await request(
-      process.env.TEST_HOST as string,
-      makeLoginMutation(email, password)
-    );
-    expect(response).toEqual({
+    const client = new TestClient(process.env.TEST_HOST as string);
+    const response = await client.login(email, password);
+    expect(response.data).toEqual({
       login: [
         {
           path: "email",
@@ -53,11 +43,9 @@ describe("login module", () => {
       email,
       password
     }).save();
-    const response = await request(
-      process.env.TEST_HOST as string,
-      makeLoginMutation(email, password)
-    );
-    expect(response).toEqual({
+    const client = new TestClient(process.env.TEST_HOST as string);
+    const response = await client.login(email, password);
+    expect(response.data).toEqual({
       login: [
         {
           path: "email",
@@ -72,11 +60,9 @@ describe("login module", () => {
       password,
       confirmed: true
     }).save();
-    const response = await request(
-      process.env.TEST_HOST as string,
-      makeLoginMutation(email, "lairubgrçei8g")
-    );
-    expect(response).toEqual({
+    const client = new TestClient(process.env.TEST_HOST as string);
+    const response = await client.login(email, "lairubgrçei8g");
+    expect(response.data).toEqual({
       login: [
         {
           path: "email",
@@ -91,11 +77,9 @@ describe("login module", () => {
       password,
       confirmed: true
     }).save();
-    const response = await request(
-      process.env.TEST_HOST as string,
-      makeLoginMutation(email, password)
-    );
-    expect(response).toEqual({
+    const client = new TestClient(process.env.TEST_HOST as string);
+    const response = await client.login(email, password);
+    expect(response.data).toEqual({
       login: null
     });
   });
