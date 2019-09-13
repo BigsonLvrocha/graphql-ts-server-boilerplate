@@ -50,8 +50,5 @@ export const resolvers: ResolverMap = {
       }
       return null;
     }
-  },
-  Query: {
-    bye2: () => "bye"
   }
 };
