@@ -68,8 +68,5 @@ export const resolvers: ResolverMap = {
 
       return null;
     }
-  },
-  Query: {
-    dummy2: () => "bye"
   }
 };

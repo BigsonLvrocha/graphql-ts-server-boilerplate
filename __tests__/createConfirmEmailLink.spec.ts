@@ -1,19 +1,20 @@
 import { createConfirmEmailLink } from "../src/utils/createConfirmEmailLinks";
-import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { createTestConn } from "./utils/createTestConnection";
 import { User } from "../src/entity/User";
 import { redis } from "../src/services/redis";
 import { default as fetch } from "node-fetch";
 import { Connection } from "typeorm";
+import * as faker from "faker";
 
 let userId = "";
 let conn: Connection;
 
 describe("create confirm link", () => {
   beforeAll(async () => {
-    conn = await createTypeOrmConn();
+    conn = await createTestConn();
     const user = await User.create({
-      email: "box5@bob.com",
-      password: "açshfqnrçvh"
+      email: faker.internet.email(),
+      password: faker.internet.password()
     }).save();
     userId = user.id;
   });

@@ -1,24 +1,17 @@
 import { User } from "../src/entity/User";
-import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { createTestConn } from "./utils/createTestConnection";
 import {
   invalidLogin,
   confirmEmailError
 } from "../src/modules/login/errorMessages";
 import { Connection } from "typeorm";
 import { TestClient } from "./utils/testClient";
+import * as faker from "faker";
 
-const email = "tom@bob.com";
-const password = "asdf";
 let conn: Connection;
 describe("login module", () => {
   beforeAll(async () => {
-    conn = await createTypeOrmConn();
-  });
-
-  beforeEach(async () => {
-    await User.createQueryBuilder()
-      .delete()
-      .execute();
+    conn = await createTestConn();
   });
 
   afterAll(async () => {
@@ -27,7 +20,10 @@ describe("login module", () => {
 
   it("returns error on invalid email", async () => {
     const client = new TestClient(process.env.TEST_HOST as string);
-    const response = await client.login(email, password);
+    const response = await client.login(
+      faker.internet.email(),
+      faker.internet.password()
+    );
     expect(response.data).toEqual({
       login: [
         {
@@ -39,6 +35,8 @@ describe("login module", () => {
   });
 
   it("returns error on unconfirmed account", async () => {
+    const email = faker.internet.email();
+    const password = faker.internet.password();
     await User.create({
       email,
       password
@@ -54,7 +52,10 @@ describe("login module", () => {
       ]
     });
   });
+
   it("returns error on wrong password", async () => {
+    const email = faker.internet.email();
+    const password = faker.internet.password();
     await User.create({
       email,
       password,
@@ -72,6 +73,8 @@ describe("login module", () => {
     });
   });
   it("returns null on correct login", async () => {
+    const email = faker.internet.email();
+    const password = faker.internet.password();
     await User.create({
       email,
       password,

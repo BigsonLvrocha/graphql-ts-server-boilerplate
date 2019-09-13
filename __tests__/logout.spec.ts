@@ -1,23 +1,13 @@
 import { Connection } from "typeorm";
-import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { createTestConn } from "./utils/createTestConnection";
 import { User } from "../src/entity/User";
 import { TestClient } from "./utils/testClient";
-
-const email = "tom@bob.com";
-const password = "asdf";
+import * as faker from "faker";
 let conn: Connection;
 
 describe("logout module", () => {
   beforeAll(async () => {
-    conn = await createTypeOrmConn();
-    await User.createQueryBuilder()
-      .delete()
-      .execute();
-    await User.create({
-      email,
-      password,
-      confirmed: true
-    }).save();
+    conn = await createTestConn();
   });
 
   afterAll(async () => {
@@ -25,6 +15,13 @@ describe("logout module", () => {
   });
 
   test("multiple sesison", async () => {
+    const email = faker.internet.email();
+    const password = faker.internet.password();
+    await User.create({
+      email,
+      password,
+      confirmed: true
+    }).save();
     const sess1 = new TestClient(process.env.TEST_HOST as string);
     const sess2 = new TestClient(process.env.TEST_HOST as string);
 
@@ -39,6 +36,13 @@ describe("logout module", () => {
 
   it("logs out single session", async () => {
     const client = new TestClient(process.env.TEST_HOST as string);
+    const email = faker.internet.email();
+    const password = faker.internet.password();
+    await User.create({
+      email,
+      password,
+      confirmed: true
+    }).save();
     await client.login(email, password);
     const response = await client.me();
     const response1 = await client.logout();

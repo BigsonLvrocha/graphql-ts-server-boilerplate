@@ -56,8 +56,5 @@ export const resolvers: IResolvers = {
       }
       return null;
     }
-  },
-  Query: {
-    bye: () => "bye"
   }
 };

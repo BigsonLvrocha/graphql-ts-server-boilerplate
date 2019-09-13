@@ -1,27 +1,25 @@
 import { Connection } from "typeorm";
-import { createTypeOrmConn } from "../src/utils/createTypesOrmConn";
+import { createTestConn } from "./utils/createTestConnection";
 import { User } from "../src/entity/User";
 import { TestClient } from "./utils/testClient";
 import { createFotgotPasswordLink } from "../src/utils/createForgotPasswordLink";
 import { forgotPasswordLockAccount } from "../src/utils/forgotPasswordLockAccount";
 import { lockedAccountError } from "../src/modules/login/errorMessages";
 import { redis } from "../src/services/redis";
+import * as faker from "faker";
 
-const email = "tom@bob.com";
-const password = "asdf";
+const email = faker.internet.email();
+const password = faker.internet.password();
 const newPassword = "asdfasdf";
 let userId: string;
 let conn: Connection;
 
 describe("ForgotPasswordModule", () => {
   beforeAll(async () => {
-    conn = await createTypeOrmConn();
+    conn = await createTestConn();
   });
 
   beforeEach(async () => {
-    await User.createQueryBuilder()
-      .delete()
-      .execute();
     const user = await User.create({
       email,
       password,
