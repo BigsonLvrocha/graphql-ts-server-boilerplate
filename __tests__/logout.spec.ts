@@ -5,6 +5,7 @@ import { TestClient } from "./utils/testClient";
 import * as faker from "faker";
 let conn: Connection;
 
+faker.seed(Date.now() + 3)
 describe("logout module", () => {
   beforeAll(async () => {
     conn = await createTestConn();

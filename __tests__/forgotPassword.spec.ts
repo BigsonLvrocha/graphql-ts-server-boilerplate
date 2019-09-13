@@ -8,6 +8,7 @@ import { lockedAccountError } from "../src/modules/login/errorMessages";
 import { redis } from "../src/services/redis";
 import * as faker from "faker";
 
+faker.seed(Date.now() + 1)
 const email = faker.internet.email();
 const password = faker.internet.password();
 const newPassword = "asdfasdf";
