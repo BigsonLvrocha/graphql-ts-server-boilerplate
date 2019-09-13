@@ -11,8 +11,11 @@ import { genSchema } from "./utils/generateSchema";
 import { redisSessionPrefix } from "./constants";
 import * as RateLimit from "express-rate-limit";
 import * as RedisStoreLimit from "rate-limit-redis";
-const RedisStore = ConnectRedis(session);
+import * as Passport from "passport";
+import { Strategy } from "passport-twitter";
+import { User } from "./entity/User";
 
+const RedisStore = ConnectRedis(session);
 export const startServer = async () => {
   const schema = genSchema();
   const server = new GraphQLServer({
@@ -61,6 +64,50 @@ export const startServer = async () => {
   };
   server.express.get("/confirm/:id", confirmEmail);
   await createTypeOrmConn();
+  Passport.use(
+    new Strategy(
+      {
+        consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
+        consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
+        callbackURL: "http://localhost:4000/auth/twitter/callback",
+        includeEmail: true
+      },
+      async (_, __, profile, cb) => {
+        const { id, emails } = profile;
+        let email: string | null = null;
+        const query = User.createQueryBuilder().where("user.twitterId = :id", {
+          id
+        });
+        if (emails) {
+          email = emails[0].value;
+          query.orWhere("user.email = :email", { email });
+        }
+        let user = await query.getOne();
+        // this user needs to be created
+        if (!user) {
+          user = await User.create({
+            twitterId: id,
+            email
+          }).save();
+        } else if (!user.twitterId) {
+          user.twitterId = id;
+          await user.save();
+        }
+        return cb(null, { id: user.id });
+      }
+    )
+  );
+  server.express.use(Passport.initialize());
+  server.express.get("/auth/twitter", Passport.authenticate("twitter"));
+  server.express.get(
+    "/auth/twitter/callback",
+    Passport.authenticate("twitter", { session: false }),
+    (req, res) => {
+      req.session!.userId = (req.user as any).id;
+      // @todo redirect to frontend
+      res.redirect("/");
+    }
+  );
   const app = await server.start({
     cors,
     port: process.env.NODE_ENV === "test" ? 0 : 4000
