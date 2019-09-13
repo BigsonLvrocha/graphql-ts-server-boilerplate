@@ -6,6 +6,7 @@ import { default as fetch } from "node-fetch";
 import { Connection } from "typeorm";
 import * as faker from "faker";
 
+faker.seed(Date.now() + 0);
 let userId = "";
 let conn: Connection;
 

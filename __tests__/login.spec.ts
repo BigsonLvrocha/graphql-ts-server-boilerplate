@@ -8,6 +8,7 @@ import { Connection } from "typeorm";
 import { TestClient } from "./utils/testClient";
 import * as faker from "faker";
 
+faker.seed(Date.now() + 2);
 let conn: Connection;
 describe("login module", () => {
   beforeAll(async () => {

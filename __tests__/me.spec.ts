@@ -4,6 +4,7 @@ import { User } from "../src/entity/User";
 import { TestClient } from "./utils/testClient";
 import * as faker from "faker";
 
+faker.seed(Date.now() + 4)
 const email = faker.internet.email();
 const password = faker.internet.password();
 let conn: Connection;
