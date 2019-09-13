@@ -1,5 +1,9 @@
 import { User } from "../../entity/User";
-import { invalidLogin, confirmEmailError } from "./errorMessages";
+import {
+  invalidLogin,
+  confirmEmailError,
+  lockedAccountError
+} from "./errorMessages";
 import * as bcrypt from "bcryptjs";
 import { ResolverMap } from "../../types/graphql-utils";
 import { userSessionIdPrefix } from "../../constants";
@@ -25,6 +29,14 @@ export const resolvers: ResolverMap = {
           {
             path: "email",
             message: confirmEmailError
+          }
+        ];
+      }
+      if (user.forgotPasswordLocked) {
+        return [
+          {
+            path: "email",
+            message: lockedAccountError
           }
         ];
       }
