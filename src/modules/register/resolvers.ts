@@ -6,6 +6,7 @@ import { duplicateEmail } from "./errorMessages";
 import { Redis } from "ioredis";
 import { createConfirmEmailLink } from "../../utils/createConfirmEmailLinks";
 import { sendEmail } from "../../utils/sendEmail";
+import { RegisterPasswordValidation } from "../../yupSchemas";
 
 const schema = yup.object().shape({
   email: yup
@@ -14,11 +15,7 @@ const schema = yup.object().shape({
     .max(255)
     .email()
     .required(),
-  password: yup
-    .string()
-    .min(3)
-    .max(255)
-    .required()
+  password: RegisterPasswordValidation
 });
 
 export const resolvers: IResolvers = {
