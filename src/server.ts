@@ -9,7 +9,8 @@ import { redis } from "./services/redis";
 import { confirmEmail } from "./routes/confirmEmail";
 import { genSchema } from "./utils/generateSchema";
 import { redisSessionPrefix } from "./constants";
-
+import * as RateLimit from "express-rate-limit";
+import * as RedisStoreLimit from "rate-limit-redis";
 const RedisStore = ConnectRedis(session);
 
 export const startServer = async () => {
@@ -25,6 +26,15 @@ export const startServer = async () => {
       };
     }
   });
+  server.express.use(
+    new RateLimit({
+      store: new RedisStoreLimit({
+        client: redis
+      }),
+      windowMs: 15 * 60 * 1000,
+      max: 100
+    })
+  );
   server.express.use(
     session({
       name: "qid",
